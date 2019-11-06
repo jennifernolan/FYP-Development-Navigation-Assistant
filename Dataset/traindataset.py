@@ -9,12 +9,12 @@ base_path = 'OIDv4_ToolKit/OID/Dataset/'
 
 train_path = os.path.join(base_path, 'train')
 
-annotations_bbox = pd.read_csv('train-annotations-bbox.csv')
+annotations_bbox = pd.read_csv('Original Datasets/train-annotations-bbox.csv')
 
 kwargs = {'header': None, 'names': ['LabelID', 'ClassName']}
-class_descriptions = pd.read_csv('class-descriptions-boxable.csv', **kwargs)
+class_descriptions = pd.read_csv('Original Datasets/class-descriptions-boxable.csv', **kwargs)
 
-train_df = pd.DataFrame(columns = ['FileName', 'XMin', 'XMax', 'YMin', 'YMax', 'ClassName'])
+train_df = pd.DataFrame(columns = ['FileName', 'OriginalURL', 'XMin', 'XMax', 'YMin', 'YMax', 'ClassName'])
 
 all_imgs = []
 
@@ -32,24 +32,27 @@ label_names = []
 for i in range(len(categories)):
     classes = class_descriptions[class_descriptions['ClassName'] == categories[i]]
     label_names.append(classes['LabelID'].values[0])
-    
+   
+urlbase = 'https://requestor-proxy.figure-eight.com/figure_eight_datasets/open-images/test/'
+   
 for i in range(len(every_img)):
     sys.stdout.write('Parse all_imgs ' + str(i) + '; Number of boxes: ' + str(len(train_df)) + '\r')
     sys.stdout.flush()
     img_name = every_img[i]
     img_id = img_name[0:16]
     tmp_df = annotations_bbox[annotations_bbox['ImageID'] == img_id]
+    url = urlbase + img_name
     for index, row in tmp_df.iterrows():
         labelName = row['LabelName']
         for i in range(len(label_names)):
             if labelName == label_names[i]:
                 train_df = train_df.append({'FileName': img_name,
+                                            'OriginalURL': url,
                                             'XMin': row['XMin'],
                                             'XMax': row['XMax'],
                                             'YMin': row['YMin'],
-                                            'YMAx': row['YMax'],
+                                            'YMax': row['YMax'],
                                             'ClassName': categories[i]},
                                             ignore_index = True)
-                                            
                                             
 train_df.to_csv('train.csv', index = False)
