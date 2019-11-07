@@ -33,7 +33,7 @@ for i in range(len(categories)):
     classes = class_descriptions[class_descriptions['ClassName'] == categories[i]]
     label_names.append(classes['LabelID'].values[0])
    
-urlbase = 'https://requestor-proxy.figure-eight.com/figure_eight_datasets/open-images/test/'
+urlbase = 'https://requestor-proxy.figure-eight.com/figure_eight_datasets/open-images/train/'
    
 for i in range(len(every_img)):
     sys.stdout.write('Parse all_imgs ' + str(i) + '; Number of boxes: ' + str(len(train_df)) + '\r')
