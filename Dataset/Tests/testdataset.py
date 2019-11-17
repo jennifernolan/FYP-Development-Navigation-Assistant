@@ -58,4 +58,8 @@ for i in range(len(every_img)):
                                             
                                             
 
+<<<<<<< HEAD
 test_df.to_csv('test.csv', index = False)
+=======
+test_df.to_csv('test.csv', index = False)
+>>>>>>> f571d33716aedbfbd5c80e786abf096686198714
