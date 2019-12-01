@@ -314,7 +314,7 @@ if __name__ == '__main__':
     parser.add_argument('--year', required=False,
                         default=DEFAULT_DATASET_YEAR,
                         metavar="<year>",
-                        help='Year of the MS-COCO dataset (2014 or 2017) (default=2014)')
+                        help='Year of the MS-COCO dataset (2017) (default=2017)')
     parser.add_argument('--model', required=True,
                         metavar="/path/to/weights.h5",
                         help="Path to weights .h5 file or 'coco'")
@@ -382,7 +382,7 @@ if __name__ == '__main__':
         # validation set, as as in the Mask RCNN paper.
         dataset_train = MSCocoDataset()
         dataset_train.load_mscoco(args.dataset, "train", year=args.year, auto_download=args.download)
-        if args.year in '2014':
+        if args.year in '2017':
             dataset_train.load_mscoco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
