@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 import sys
+import time
 
 # Set up the pi camera
 from picamera.array import PiRGBArray
@@ -21,6 +22,26 @@ from picamera import PiCamera
 from utils import label_map_util
 from utils import visualization_utils as vis_util
 
+# Directory name to the object detection model being used 
+model_name = 'ssdlite_mobilenet_v2_coco_2018_05_09'
+# Get the current directory
+os_path = os.getcwd()
+
+# Path to the frozen graph file that contains the model used for object detection
+path_to_graph = os.path.join(os_path, model_name, 'frozen_inference_graph.pb')
+
+# Label map file path
+path_to_labels = os.path.join(os_path, 'data', 'mscoco_label_map.pbtxt')
+
+# The number of classes the model is trained to detect
+num_of_classes = 90
+
+# The label map is loaded
+# Essentially, the utilities functions returns a mapping number which corresponds to a category string in the labels file
+label_map = label_map_util.load_labelmap(path_to_labels)
+categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=num_of_classes, use_display_name=True)
+category_indx = label_map_util.create_category_index(categories)
+
 def main():
 
     print('Device setup started')
@@ -28,26 +49,6 @@ def main():
     # Width and height of window used to display video stream
     width = 1280
     height = 720
-
-    # Directory name to the object detection model being used 
-    model_name = 'ssdlite_mobilenet_v2_coco_2018_05_09'
-    # Get the current directory
-    os_path = os.getcwd()
-
-    # Path to the frozen graph file that contains the model used for object detection
-    path_to_graph = os.path.join(os_path, model_name, 'frozen_inference_graph.pb')
-
-    # Label map file path
-    path_to_labels = os.path.join(os_path, 'data', 'mscoco_label_map.pbtxt')
-
-    # The number of classes the model is trained to detect
-    num_of_classes = 90
-
-    # The label map is loaded
-    # Essentially, the utilities functions returns a mapping number which corresponds to a category string in the labels file
-    label_map = label_map_util.load_labelmap(path_to_labels)
-    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=num_of_classes, use_display_name=True)
-    category_indx = label_map_util.create_category_index(categories)
 
     # The TensorFlow model is loaded here into memory
     detect_graph = tf.Graph()
@@ -89,7 +90,6 @@ def main():
     rawCapture.truncate(0)
 
     counter = 0
-    previous_class = 0
 
     for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
         t1 = cv2.getTickCount()
@@ -115,14 +115,9 @@ def main():
             use_normalized_coordinates=True,
             line_thickness=8,
             min_score_thresh=0.50)
-        
-        if counter == 0:
-            print('Ready to start navigatng')
-            counter = counter + 1
             
-        if previous_class != np.squeeze(classes[0][0]).astype(np.int32):
-            instructions(category_indx[np.squeeze(classes[0][0]).astype(np.int32)]['name'])
-            previous_class = np.squeeze(classes[0][0]).astype(np.int32)
+        instructions(classes, num, counter, scores, boxes)
+        counter = counter + 1
         
         cv2.putText(frame, "FPS: {0:.2f}".format(frame_rate),(30,50),font,1,(255,255,0),2,cv2.LINE_AA)
         
@@ -141,7 +136,23 @@ def main():
         
     camera.close()
 
-def instructions(detected_object):
-    print("The detected object is: " + str(detected_object))
+def instructions(classes, num, counter, scores, boxes):
+    if counter == 0:
+        print('Ready to start navigating')
+            
+    for i in range(0, num[0].astype(np.int32)):
+        if np.squeeze((scores[0][i])*100).astype(np.int32) > 70:
+            y1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
+            y2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
+            
+            print("The detected object is: " + str(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + "\n is: ")
+        
+            if y1 in range(0, 40) and y2 in range(0, 40):
+                print("to the left")
+            elif y1 in range(60, 100) and y2 in range(60, 100):
+                print("to the right")
+            else:
+                print("straight ahead")
+            time.sleep(2)
 
 main()
