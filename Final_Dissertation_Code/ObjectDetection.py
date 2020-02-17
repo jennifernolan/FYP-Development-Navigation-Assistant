@@ -6,45 +6,48 @@
 # https://github.com/EdjeElectronics/TensorFlow-Object-Detection-on-the-Raspberry-Pi/blob/master/Object_detection_picamera.py
 #Elements of this code was left out and changed for this project.
 
-if __name__ == '__main__':
-    # Import packages
-    import os
-    import cv2
-    import numpy as np
-    import tensorflow as tf
-    import sys
-    import time
 
-    # Set up the pi camera
-    from picamera.array import PiRGBArray
-    from picamera import PiCamera
+# Import packages
+import os
+import cv2
+import numpy as np
+import tensorflow as tf
+import sys
+import time
 
-    # Import the utilities
-    from utils import label_map_util
-    from utils import visualization_utils as vis_util
+# Set up the pi camera
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 
-    # Directory name to the object detection model being used 
-    model_name = 'ssdlite_mobilenet_v2_coco_2018_05_09'
-    # Get the current directory
-    os_path = os.getcwd()
+# Import the utilities
+from utils import label_map_util
+from utils import visualization_utils as vis_util
 
-    # Path to the frozen graph file that contains the model used for object detection
-    path_to_graph = os.path.join(os_path, model_name, 'frozen_inference_graph.pb')
+    
+# Directory name to the object detection model being used 
+model_name = 'ssdlite_mobilenet_v2_coco_2018_05_09'
+# Get the current directory
+os_path = os.getcwd()
 
-    # Label map file path
-    path_to_labels = os.path.join(os_path, 'data', 'mscoco_label_map.pbtxt')
+# Path to the frozen graph file that contains the model used for object detection
+path_to_graph = os.path.join(os_path, model_name, 'frozen_inference_graph.pb')
 
-    # The number of classes the model is trained to detect
-    num_of_classes = 90
+# Label map file path
+path_to_labels = os.path.join(os_path, 'data', 'mscoco_label_map.pbtxt')
 
-    # The label map is loaded
-    # Essentially, the utilities functions returns a mapping number which corresponds to a category string in the labels file
-    label_map = label_map_util.load_labelmap(path_to_labels)
-    categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=num_of_classes, use_display_name=True)
-    category_indx = label_map_util.create_category_index(categories)
+# The number of classes the model is trained to detect
+num_of_classes = 90
 
-    def main():
-
+# The label map is loaded
+# Essentially, the utilities functions returns a mapping number which corresponds to a category string in the labels file
+label_map = label_map_util.load_labelmap(path_to_labels)
+categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=num_of_classes, use_display_name=True)
+category_indx = label_map_util.create_category_index(categories)
+        
+class ObjectDetection:
+    
+    def main(self):
+        
         print('Device setup started')
 
         # Width and height of window used to display video stream
@@ -59,9 +62,9 @@ if __name__ == '__main__':
                 serial_graph = fid.read()
                 od_graph_def.ParseFromString(serial_graph)
                 tf.import_graph_def(od_graph_def, name='')
-                
+                        
             session = tf.Session(graph=detect_graph)
-            
+                    
         # The input image        
         imageTense = detect_graph.get_tensor_by_name('image_tensor:0')
 
@@ -83,7 +86,7 @@ if __name__ == '__main__':
         # Pi Camera is setup to perform object detection
         # Reference to the raw capture gathered also
         print('Setting up camera for navigation')
-        
+                
         camera = PiCamera()
         camera.resolution = (width, height)
         camera.framerate = 60
@@ -94,18 +97,18 @@ if __name__ == '__main__':
 
         for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
             t1 = cv2.getTickCount()
-            
+                    
             # Gather the frame and expand the frame dimensions
             frame = np.copy(frame1.array)
             frame.setflags(write=1)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame_expanded = np.expand_dims(frame_rgb, axis=0)
-            
+                    
             # The object detection is carried out here by running the model and inputting the image
             (boxes, scores, classes, num) = session.run(
                 [detect_boxes, detect_scores, detect_classes, num_detect],
                 feed_dict={imageTense: frame_expanded})
-                
+                        
             # The results of the object detection are drawn
             vis_util.visualize_boxes_and_labels_on_image_array(
                 frame,
@@ -115,45 +118,60 @@ if __name__ == '__main__':
                 category_indx,
                 use_normalized_coordinates=True,
                 line_thickness=8,
-                min_score_thresh=0.50)
-                
-            instructions(classes, num, counter, scores, boxes)
+                min_score_thresh=0.70)
+            
+            #distance_from_camera(boxes)
+            self.instructions(classes, num, counter, scores, boxes)
             counter = counter + 1
-            
+                    
             cv2.putText(frame, "FPS: {0:.2f}".format(frame_rate),(30,50),font,1,(255,255,0),2,cv2.LINE_AA)
-            
+                    
             # The results drawn on the frame are displayed
             cv2.imshow('Object detector', frame)
-            
+                    
             t2 = cv2.getTickCount()
             time1 = (t2-t1)/freq
             frame_rate = 1/time1
-            
+                    
             # Quit the program with the key q
             if cv2.waitKey(1) == ord('q'):
                 break
-            
+                    
             rawCapture.truncate(0)
-            
+                    
         camera.close()
-
-    def instructions(classes, num, counter, scores, boxes):
+    
+    def instructions(self, classes, num, counter, scores, boxes):
         if counter == 0:
             print('Ready to start navigating')
-                
+                        
         for i in range(0, num[0].astype(np.int32)):
             if np.squeeze((scores[0][i])*100).astype(np.int32) > 70:
-                y1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
-                y2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
-                
+                x1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
+                x2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
+                        
                 print("The detected object is: " + str(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + "\n is: ")
-            
-                if y1 in range(0, 40) and y2 in range(0, 40):
+                    
+                if x1 in range(0, 40) and x2 in range(0, 40):
                     print("to the left")
-                elif y1 in range(60, 100) and y2 in range(60, 100):
+                elif x1 in range(60, 100) and x2 in range(60, 100):
                     print("to the right")
                 else:
                     print("straight ahead")
                 time.sleep(2)
-
-    main()
+                    
+    """def distance_from_camera(boxes):
+        width = 1280
+        focalLength = 3.04
+        realWidth = ((np.squeeze(boxes[0][0][3])*100).astype(np.int32) + (np.squeeze(boxes[0][0][1])*100).astype(np.int32)) * 25.4
+        virtualWidth = width - (np.squeeze(boxes[0][0][3])*100).astype(np.int32) + (np.squeeze(boxes[0][0][1])*100).astype(np.int32)
+                
+        dist_in_mm = (focalLength * realWidth) / virtualWidth
+                
+        inches = dist_in_mm * 25.4
+                
+        print(inches)"""
+    
+if __name__ == '__main__':
+    obj = ObjectDetection()
+    obj.main()
