@@ -144,12 +144,13 @@ class ObjectDetection:
     def instructions(self, classes, num, counter, scores, boxes):
         if counter == 0:
             print('Ready to start navigating')
-                        
+        
         for i in range(0, num[0].astype(np.int32)):
             if np.squeeze((scores[0][i])*100).astype(np.int32) > 70:
                 x1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
                 x2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
-                        
+                
+                #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str((scores[0][i])*100) + "\n is: ")
                 print("The detected object is: " + str(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + "\n is: ")
                     
                 if x1 in range(0, 40) and x2 in range(0, 40):
@@ -159,6 +160,7 @@ class ObjectDetection:
                 else:
                     print("straight ahead")
                 time.sleep(2)
+            
                     
     """def distance_from_camera(boxes):
         width = 1280
