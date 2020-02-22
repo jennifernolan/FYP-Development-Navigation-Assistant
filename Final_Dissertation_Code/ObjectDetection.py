@@ -15,6 +15,8 @@ import tensorflow as tf
 import sys
 import time
 
+import RangeSensor
+
 # Set up the pi camera
 from picamera.array import PiRGBArray
 from picamera import PiCamera
@@ -96,6 +98,7 @@ class ObjectDetection:
         counter = 0
 
         for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
+            
             t1 = cv2.getTickCount()
                     
             # Gather the frame and expand the frame dimensions
@@ -120,7 +123,6 @@ class ObjectDetection:
                 line_thickness=8,
                 min_score_thresh=0.70)
             
-            #distance_from_camera(boxes)
             self.instructions(classes, num, counter, scores, boxes)
             counter = counter + 1
                     
@@ -136,7 +138,7 @@ class ObjectDetection:
             # Quit the program with the key q
             if cv2.waitKey(1) == ord('q'):
                 break
-                    
+            
             rawCapture.truncate(0)
                     
         camera.close()
@@ -147,11 +149,13 @@ class ObjectDetection:
         
         for i in range(0, num[0].astype(np.int32)):
             if np.squeeze((scores[0][i])*100).astype(np.int32) > 70:
+                dist = RangeSensor.get_distance()
+                
                 x1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
                 x2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
                 
                 #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str((scores[0][i])*100) + "\n is: ")
-                print("The detected object is: " + str(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + "\n is: ")
+                print("The detected object is: " + str(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + "\nIs:" + str(np.squeeze(dist).astype(np.int32)) + " inches away")
                     
                 if x1 in range(0, 40) and x2 in range(0, 40):
                     print("to the left")
@@ -160,19 +164,7 @@ class ObjectDetection:
                 else:
                     print("straight ahead")
                 time.sleep(2)
-            
-                    
-    """def distance_from_camera(boxes):
-        width = 1280
-        focalLength = 3.04
-        realWidth = ((np.squeeze(boxes[0][0][3])*100).astype(np.int32) + (np.squeeze(boxes[0][0][1])*100).astype(np.int32)) * 25.4
-        virtualWidth = width - (np.squeeze(boxes[0][0][3])*100).astype(np.int32) + (np.squeeze(boxes[0][0][1])*100).astype(np.int32)
-                
-        dist_in_mm = (focalLength * realWidth) / virtualWidth
-                
-        inches = dist_in_mm * 25.4
-                
-        print(inches)"""
+         
     
 if __name__ == '__main__':
     obj = ObjectDetection()
