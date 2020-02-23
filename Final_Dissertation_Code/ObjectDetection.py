@@ -50,7 +50,8 @@ class ObjectDetection:
     
     def main(self):
         
-        print('Device setup started')
+        os.system('espeak -s150 "Device setup started." --stdout | aplay 2>/dev/null')
+        #print('Device setup started')
 
         # Width and height of window used to display video stream
         width = 1280
@@ -60,7 +61,7 @@ class ObjectDetection:
         detect_graph = tf.Graph()
         with detect_graph.as_default():
             od_graph_def = tf.GraphDef()
-            with tf.gfile.GFile(path_to_graph, 'rb') as fid:
+            with tf.io.gfile.GFile(path_to_graph, 'rb') as fid:
                 serial_graph = fid.read()
                 od_graph_def.ParseFromString(serial_graph)
                 tf.import_graph_def(od_graph_def, name='')
@@ -87,19 +88,19 @@ class ObjectDetection:
 
         # Pi Camera is setup to perform object detection
         # Reference to the raw capture gathered also
-        print('Setting up camera for navigation')
+        os.system('espeak -s150 "Setting up camera for navigation." --stdout | aplay 2>/dev/null')
+        #print('Setting up camera for navigation')
                 
         camera = PiCamera()
         camera.resolution = (width, height)
-        camera.framerate = 60
+        camera.framerate = 40
         rawCapture = PiRGBArray(camera, size=(width, height))
         rawCapture.truncate(0)
 
         counter = 0
 
         for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
-            
-            t1 = cv2.getTickCount()
+            #t1 = cv2.getTickCount()
                     
             # Gather the frame and expand the frame dimensions
             frame = np.copy(frame1.array)
@@ -125,27 +126,15 @@ class ObjectDetection:
             
             self.instructions(classes, num, counter, scores, boxes)
             counter = counter + 1
-                    
-            cv2.putText(frame, "FPS: {0:.2f}".format(frame_rate),(30,50),font,1,(255,255,0),2,cv2.LINE_AA)
-                    
-            # The results drawn on the frame are displayed
-            cv2.imshow('Object detector', frame)
-                    
-            t2 = cv2.getTickCount()
-            time1 = (t2-t1)/freq
-            frame_rate = 1/time1
-                    
-            # Quit the program with the key q
-            if cv2.waitKey(1) == ord('q'):
-                break
             
             rawCapture.truncate(0)
-                    
+               
         camera.close()
     
     def instructions(self, classes, num, counter, scores, boxes):
         if counter == 0:
-            print('Ready to start navigating')
+            os.system('espeak -s150 "Ready to start navigating." --stdout | aplay 2>/dev/null')
+            #print('Ready to start navigating')
         
         for i in range(0, num[0].astype(np.int32)):
             if np.squeeze((scores[0][i])*100).astype(np.int32) > 70:
@@ -154,15 +143,19 @@ class ObjectDetection:
                 x1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
                 x2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
                 
-                #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str((scores[0][i])*100) + "\n is: ")
-                print("The detected object is: " + str(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + "\nIs:" + str(np.squeeze(dist).astype(np.int32)) + " inches away")
-                    
+                os.system('espeak -s150 "The detected object {0} is {1} inches away." --stdout | aplay 2>/dev/null'.format(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name'], np.squeeze(dist).astype(np.int32)))
+                #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)))
+
+                
                 if x1 in range(0, 40) and x2 in range(0, 40):
-                    print("to the left")
+                    os.system('espeak -s150 "to the left." --stdout | aplay 2>/dev/null')
+                    #print("to the left")
                 elif x1 in range(60, 100) and x2 in range(60, 100):
-                    print("to the right")
+                    os.system('espeak -s150 "to the right." --stdout | aplay 2>/dev/null')
+                    #print("to the right")
                 else:
-                    print("straight ahead")
+                    os.system('espeak -s150 "straight ahead." --stdout | aplay 2>/dev/null')
+                    #print("straight ahead")
                 time.sleep(2)
          
     

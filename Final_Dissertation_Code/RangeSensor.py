@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import numpy as np
+import os
 
 def get_distance():
         
@@ -9,13 +10,13 @@ def get_distance():
     TRIG = 23
     ECHO = 24
     
-    #print("Distance Measurement In Progress")
+    #os.system('espeak -s150 "Distance Measurement In Progress." --stdout | aplay 2>/dev/null')
 
     GPIO.setup(TRIG, GPIO.OUT)
     GPIO.setup(ECHO, GPIO.IN)
-
+    
     GPIO.output(TRIG, False)
-    #print("Waiting For Sensor To Settle")
+    #os.system('espeak -s150 "Waiting For Sensor To Settle." --stdout | aplay 2>/dev/null')
     time.sleep(2)
 
     GPIO.output(TRIG, True)
@@ -34,9 +35,11 @@ def get_distance():
 
     distance = round(distance, 2)
 
-    #print("Distance:", np.squeeze(distance).astype(np.int32), "inches")
+    #os.system('espeak -s150 "Distance: {0} inches" --stdout | aplay 2>/dev/null'.format(np.squeeze(distance).astype(np.int32)))
     
     GPIO.cleanup()
     
     return distance
+
+get_distance()
     
