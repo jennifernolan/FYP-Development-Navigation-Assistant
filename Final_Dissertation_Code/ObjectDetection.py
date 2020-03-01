@@ -6,7 +6,6 @@
 # https://github.com/EdjeElectronics/TensorFlow-Object-Detection-on-the-Raspberry-Pi/blob/master/Object_detection_picamera.py
 #Elements of this code was left out and changed for this project.
 
-
 # Import packages
 import os
 import cv2
@@ -14,6 +13,7 @@ import numpy as np
 import tensorflow as tf
 import sys
 import time
+#import threading
 
 import RangeSensor
 
@@ -45,6 +45,8 @@ num_of_classes = 90
 label_map = label_map_util.load_labelmap(path_to_labels)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=num_of_classes, use_display_name=True)
 category_indx = label_map_util.create_category_index(categories)
+
+#STOP_THREADS = False
         
 class ObjectDetection:
     
@@ -81,28 +83,21 @@ class ObjectDetection:
         # The number of objects detected
         num_detect = detect_graph.get_tensor_by_name('num_detections:0')
 
-        # Frame rate calculation
-        frame_rate = 1
-        freq = cv2.getTickFrequency()
-        font = cv2.FONT_HERSHEY_SIMPLEX
-
         # Pi Camera is setup to perform object detection
         # Reference to the raw capture gathered also
         os.system('espeak -s150 "Setting up camera for navigation." --stdout | aplay 2>/dev/null')
         #print('Setting up camera for navigation')
-                
+        
         camera = PiCamera()
         camera.resolution = (width, height)
-        camera.framerate = 40
+        camera.framerate = 60
         rawCapture = PiRGBArray(camera, size=(width, height))
         rawCapture.truncate(0)
 
         counter = 0
 
         for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
-            #t1 = cv2.getTickCount()
-                    
-            # Gather the frame and expand the frame dimensions
+            # Gather the frimport RPi.GPIO as GPIOame and expand the frame dimensions
             frame = np.copy(frame1.array)
             frame.setflags(write=1)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -124,29 +119,42 @@ class ObjectDetection:
                 line_thickness=8,
                 min_score_thresh=0.70)
             
+            '''t = threading.Thread(target = self.instructions, args=(classes, num, counter, scores, boxes))
+            t.daemon = True
+            t.start()'''
             self.instructions(classes, num, counter, scores, boxes)
             counter = counter + 1
             
             rawCapture.truncate(0)
+            
+            '''if STOP_THREADS == True:
+                t.join()'''
                
         camera.close()
     
     def instructions(self, classes, num, counter, scores, boxes):
+        #print(classes[0])
         if counter == 0:
             os.system('espeak -s150 "Ready to start navigating." --stdout | aplay 2>/dev/null')
             #print('Ready to start navigating')
         
         for i in range(0, num[0].astype(np.int32)):
             if np.squeeze((scores[0][i])*100).astype(np.int32) > 70:
-                dist = RangeSensor.get_distance()
+                if i == 0:
+                    dist = RangeSensor.get_distance()
+                else:
+                    dist = 0
                 
                 x1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
                 x2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
                 
-                os.system('espeak -s150 "The detected object {0} is {1} inches away." --stdout | aplay 2>/dev/null'.format(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name'], np.squeeze(dist).astype(np.int32)))
-                #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)))
+                if dist == 0 or dist is None:
+                    #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)))
+                    os.system('espeak -s150 "The detected object {0}." --stdout | aplay 2>/dev/null'.format(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']))
+                else:
+                    #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + " is " + str(np.squeeze(dist).astype(np.int32)) + " inches away")
+                    os.system('espeak -s150 "The detected object {0} is {1} inches away." --stdout | aplay 2>/dev/null'.format(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name'], np.squeeze(dist).astype(np.int32)))
 
-                
                 if x1 in range(0, 40) and x2 in range(0, 40):
                     os.system('espeak -s150 "to the left." --stdout | aplay 2>/dev/null')
                     #print("to the left")
@@ -157,6 +165,7 @@ class ObjectDetection:
                     os.system('espeak -s150 "straight ahead." --stdout | aplay 2>/dev/null')
                     #print("straight ahead")
                 time.sleep(2)
+                #STOP_THREADS = True
          
     
 if __name__ == '__main__':
