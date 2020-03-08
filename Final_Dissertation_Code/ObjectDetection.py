@@ -13,7 +13,6 @@ import numpy as np
 import tensorflow as tf
 import sys
 import time
-#import threading
 
 import RangeSensor
 
@@ -25,7 +24,6 @@ from picamera import PiCamera
 from utils import label_map_util
 from utils import visualization_utils as vis_util
 
-    
 # Directory name to the object detection model being used 
 model_name = 'ssdlite_mobilenet_v2_coco_2018_05_09'
 # Get the current directory
@@ -45,9 +43,7 @@ num_of_classes = 90
 label_map = label_map_util.load_labelmap(path_to_labels)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=num_of_classes, use_display_name=True)
 category_indx = label_map_util.create_category_index(categories)
-
-#STOP_THREADS = False
-        
+         
 class ObjectDetection:
     
     def main(self):
@@ -82,7 +78,7 @@ class ObjectDetection:
 
         # The number of objects detected
         num_detect = detect_graph.get_tensor_by_name('num_detections:0')
-
+        
         # Pi Camera is setup to perform object detection
         # Reference to the raw capture gathered also
         os.system('espeak -s150 "Setting up camera for navigation." --stdout | aplay 2>/dev/null')
@@ -107,39 +103,21 @@ class ObjectDetection:
             (boxes, scores, classes, num) = session.run(
                 [detect_boxes, detect_scores, detect_classes, num_detect],
                 feed_dict={imageTense: frame_expanded})
-                        
-            # The results of the object detection are drawn
-            vis_util.visualize_boxes_and_labels_on_image_array(
-                frame,
-                np.squeeze(boxes),
-                np.squeeze(classes).astype(np.int32),
-                np.squeeze(scores),
-                category_indx,
-                use_normalized_coordinates=True,
-                line_thickness=8,
-                min_score_thresh=0.70)
             
-            '''t = threading.Thread(target = self.instructions, args=(classes, num, counter, scores, boxes))
-            t.daemon = True
-            t.start()'''
             self.instructions(classes, num, counter, scores, boxes)
             counter = counter + 1
             
             rawCapture.truncate(0)
-            
-            '''if STOP_THREADS == True:
-                t.join()'''
                
         camera.close()
     
     def instructions(self, classes, num, counter, scores, boxes):
-        #print(classes[0])
         if counter == 0:
             os.system('espeak -s150 "Ready to start navigating." --stdout | aplay 2>/dev/null')
             #print('Ready to start navigating')
         
         for i in range(0, num[0].astype(np.int32)):
-            if np.squeeze((scores[0][i])*100).astype(np.int32) > 70:
+            if np.squeeze((scores[0][i])*100).astype(np.int32) > 60:
                 if i == 0:
                     dist = RangeSensor.get_distance()
                 else:
@@ -165,7 +143,6 @@ class ObjectDetection:
                     os.system('espeak -s150 "straight ahead." --stdout | aplay 2>/dev/null')
                     #print("straight ahead")
                 time.sleep(2)
-                #STOP_THREADS = True
          
     
 if __name__ == '__main__':
