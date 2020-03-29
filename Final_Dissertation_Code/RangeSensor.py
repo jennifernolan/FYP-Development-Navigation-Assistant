@@ -1,3 +1,14 @@
+'''
+Developer Name: Jennifer Nolan (C16517636)
+
+Program Description: This program uses the HC-SR04 ultrasonic distance sensor attached to the Raspberry Pi to
+calculate the distance between the Raspberry Pi attached to the user and the closest detected object in the
+users path. This calculated distance is then used within the audio navigation instructions provided to the user
+later in the system.
+
+'''
+
+
 import RPi.GPIO as GPIO
 import time
 import numpy as np

@@ -1,3 +1,10 @@
+'''
+Developer Name: Jennifer Nolan (C16517636)
+Program Description: These set of test cases test the detected object distance retrieved by the RangeSensor program.
+This program tests for short, middle and long distances.
+
+'''
+
 #Python code to test distance detection
 import unittest
 from RangeSensor import get_distance

@@ -1,3 +1,10 @@
+'''
+Developer Name: Jennifer Nolan (C16517636)
+Program Description: These set of test cases test that the object detection model correctly classifies
+known objects detected in the users path.
+
+'''
+
 import unittest
 import numpy as np
 import ObjectDetection as ObjectClass

@@ -1,3 +1,14 @@
+'''
+Developer Name: Jennifer Nolan (C16517636)
+Program Description: This program uses the MobileNet SSDLite object detction model and the Raspberry Pi camera
+module to detect objects in the users path. This program starts begins with setting up the pre trained object detection
+model and the Raspbery Pi camera. Once these are set up the Pi camera is set to take in a continuous video input. This
+video input is then sent to the model to detect objects in the users path. The results from the object detection model
+are then calculated into instructions, along with the distance calculation from the RangeSensor program, that are provided
+to the user through an attached audio device, i.e. headphones.
+
+'''
+
 # PiCamera Object Detection Program
 # Program uses a TensorFlow classifier to perform object detection using a video stream
 # Using the inputted video stream boxes and scores are given to the objects of interest in the frame.

@@ -1,3 +1,10 @@
+'''
+Developer Name: Jennifer Nolan (C16517636)
+Program Description: These set of test cases test the file paths of the files required to run the
+object detection model, MobileNet SSDLite. 
+
+'''
+
 #Python code to test file paths in progam
 import unittest
 import os

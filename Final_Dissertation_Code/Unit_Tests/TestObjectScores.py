@@ -1,3 +1,12 @@
+'''
+Developer Name: Jennifer Nolan (C16517636)
+Program Description: These set of test cases test the that only classified object with a certainty 
+score of 70 or greater are used to generate navigation instructions provided to the user. If a detected 
+object has a certainty score of less than 70 then it cannot guarenteed to the same degree that it is 
+accurate and therefore is not included in the instructions provided to the user.
+
+'''
+
 #Python code to test result scores in progam
 import unittest
 import numpy as np
