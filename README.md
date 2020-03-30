@@ -1,18 +1,14 @@
 # FYP-Development-Navigation-Assistant
-Project Name
-------------
+## Project Name
 Navigation Assistant: An Investigation into Obstacle Avoidance for the Visually Impaired using the Raspberry Pi
 
-Developer
----------
+## Developer
 Jennifer Nolan C16517636
 
-Submission Date
----------------
+## Submission Date
 11th April 2020
 
-Description of Folders
-----------------------
+## Description of Folders
 ### Coding files
 An empty file directory made as part of the inital repository commit.
 
@@ -42,9 +38,7 @@ The completed dissertation report for this project.
 ### InterimReport.docx
 The completed interim report for this project.
 
-MobileNet SSDLite model files
------------------------------
+## MobileNet SSDLite model files
 [MobileNet SSDLite model files needed to run object detection for this project](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
 
-How to setup and run Navigation Assistant on the Raspberry Pi
--------------------------------------------------------------
+## How to setup and run Navigation Assistant on the Raspberry Pi
