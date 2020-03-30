@@ -45,22 +45,22 @@ The completed interim report for this project.
 1. Connect the Raspberry Pi camera module and HC-SR04 ultrasonic distance sensor to the Raspberry Pi device.
 2. Install Raspbian OS on the Raspberry Pi.
 3. Install OpenCV and Tensorflow onto the Raspberry Pi using the following commands:
-'''
+```
 sudo install opencv-python
-'''
-'''
+```
+```
 sudo install tensorflow
-'''
+```
 4. Download the MobileNet SSDLite model from the [Tensorflow detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) using the following command:
-'''
+```
 wget http://download.tensorflow.org/models/object_detection/ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz
-'''
+```
 Then extract the model files using:
-'''
+```
 tar -xzvf ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz
-'''
+```
 5. Place the object detection program, ObjectDetection.py, and the range sensor program, RangeSensor.py, into the research/object_detection file.
 6. Run the object detection program using the following command:
-'''
+```
 python3 ObjectDetection.py
-'''
+```
