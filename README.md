@@ -27,15 +27,20 @@ This folder contain the prototype code for the prototype system demonstarted as 
 # Dataset
 This folder contains files from the initial project plan to create a custom dataset to train an object detection model with.
 
-#Final_Dissertation_Code
+# Final_Dissertation_Code
 This folder contains the final code used for this project. This folder contains the programs used to run the MobileNet SSDLite object detection model on the Raspberry Pi. It also contains the unit tests conducted during the development phase of this project and their results.
 
-#User_Evaluation_Results
+# User_Evaluation_Results
 This file contains both the interview answers and questionnaire answers provided by the users as part of the user testing of this project.
 
-#mrcnn
+# mrcnn
 This folder contains the files needed to run the Mask RCNN model on the Raspberry Pi. 
 
+# DissertationReport.docx
+The completed dissertation report for this project.
+
+#InterimReport.docx
+The completed interim report for this project.
 
 MobileNet SSDLite model files
 -----------------------------
