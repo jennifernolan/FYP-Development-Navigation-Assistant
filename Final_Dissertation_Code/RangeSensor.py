@@ -6,6 +6,11 @@ calculate the distance between the Raspberry Pi attached to the user and the clo
 users path. This calculated distance is then used within the audio navigation instructions provided to the user
 later in the system.
 
+Program Change History:
+Feb 2020 - Distance from closest object implemented (using the ultrasonic distance sensor and then included in instructions)
+Feb 2020 - Audio warning of detected objects (Instructions converted from text to audio output)
+March 2020 - Project made portable (Object detection program run on device, Raspberry Pi, start up)
+
 '''
 
 

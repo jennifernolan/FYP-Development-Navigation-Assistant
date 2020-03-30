@@ -1,11 +1,21 @@
 '''
 Developer Name: Jennifer Nolan (C16517636)
-Program Description: This program uses the MobileNet SSDLite object detction model and the Raspberry Pi camera
+
+Program Description: This program uses the pretrained MobileNet SSDLite object detction model and the Raspberry Pi camera
 module to detect objects in the users path. This program starts begins with setting up the pre trained object detection
 model and the Raspbery Pi camera. Once these are set up the Pi camera is set to take in a continuous video input. This
 video input is then sent to the model to detect objects in the users path. The results from the object detection model
 are then calculated into instructions, along with the distance calculation from the RangeSensor program, that are provided
 to the user through an attached audio device, i.e. headphones.
+
+Program Change History:
+Jan 2020 - Object detection on video program (Object detection model detecting objects from camera video input)
+Feb 2020 - Started to compile instructions (Results from model were compiled into instructions provided to the user through text)
+Feb 2020 - Warnings of upcoming objects (Instructions provided to the user using resuts from object detection were finalised)
+Feb 2020 - Distance from object attempted with single lens camera
+Feb 2020 - Distance from closest object implemented (using the ultrasonic distance sensor and then included in instructions)
+Feb 2020 - Audio warning of detected objects (Instructions converted from text to audio output)
+March 2020 - Project made portable (Object detection program run on device, Raspberry Pi, start up)
 
 '''
 

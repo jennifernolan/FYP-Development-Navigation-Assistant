@@ -1,7 +1,12 @@
 '''
 Developer Name: Jennifer Nolan (C16517636)
+
 Program Description: These set of test cases test the file paths of the files required to run the
 object detection model, MobileNet SSDLite. 
+
+Program Change History:
+Feb 2020 - Start to unit testing begun
+Feb 2020 - Initial unit test conducted (Test for file paths conducted)
 
 '''
 

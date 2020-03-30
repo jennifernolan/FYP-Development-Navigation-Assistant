@@ -1,7 +1,11 @@
 '''
 Developer Name: Jennifer Nolan (C16517636)
+
 Program Description: These set of test cases test the detected object distance retrieved by the RangeSensor program.
 This program tests for short, middle and long distances.
+
+Program Change History:
+March 2020 - unittest conducted for distance sensor (Ensure correct distance is retrieved)
 
 '''
 

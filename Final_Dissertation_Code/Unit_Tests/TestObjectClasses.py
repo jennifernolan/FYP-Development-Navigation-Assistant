@@ -1,7 +1,11 @@
 '''
 Developer Name: Jennifer Nolan (C16517636)
+
 Program Description: These set of test cases test that the object detection model correctly classifies
 known objects detected in the users path.
+
+Program Change History:
+Feb 2020 - Third iteration of tests - checking classification (Ensuring the object detection model is classifying objects correctly)
 
 '''
 
