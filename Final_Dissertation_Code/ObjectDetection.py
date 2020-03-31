@@ -35,9 +35,10 @@ import tensorflow as tf
 import sys
 import time
 
+# Import sensor program
 import RangeSensor
 
-# Set up the pi camera
+# Import the pi camera
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 
@@ -53,14 +54,14 @@ os_path = os.getcwd()
 # Path to the frozen graph file that contains the model used for object detection
 path_to_graph = os.path.join(os_path, model_name, 'frozen_inference_graph.pb')
 
-# Label map file path
+# Label map file path used to classify detected objects 
 path_to_labels = os.path.join(os_path, 'data', 'mscoco_label_map.pbtxt')
 
 # The number of classes the model is trained to detect
 num_of_classes = 90
 
 # The label map is loaded
-# Essentially, the utilities functions returns a mapping number which corresponds to a category string in the labels file
+# Essentially, the utilities functions returns a mapping number which corresponds to a category string in the labels file which classifies the detected object 
 label_map = label_map_util.load_labelmap(path_to_labels)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=num_of_classes, use_display_name=True)
 category_indx = label_map_util.create_category_index(categories)
@@ -72,7 +73,7 @@ class ObjectDetection:
         os.system('espeak -s150 "Device setup started." --stdout | aplay 2>/dev/null')
         #print('Device setup started')
 
-        # Width and height of window used to display video stream
+        # Width and height of window used for video stream
         width = 1280
         height = 720
 
@@ -90,10 +91,10 @@ class ObjectDetection:
         # The input image        
         imageTense = detect_graph.get_tensor_by_name('image_tensor:0')
 
-        # The output is the bounding boxes, accuracy scores and classes
+        # The output from the model is the bounding boxes, accuracy scores and classes
         detect_boxes = detect_graph.get_tensor_by_name('detection_boxes:0')
 
-        # The score is the level of confidence for each object
+        # The score is the level of confidence/certainty for each object
         detect_scores = detect_graph.get_tensor_by_name('detection_scores:0')
         detect_classes = detect_graph.get_tensor_by_name('detection_classes:0')
 
@@ -113,8 +114,9 @@ class ObjectDetection:
 
         counter = 0
 
+        # For loop used to continuously gather video stream from camera
         for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
-            # Gather the frimport RPi.GPIO as GPIOame and expand the frame dimensions
+            # Gather the frame and expand the frame dimensions
             frame = np.copy(frame1.array)
             frame.setflags(write=1)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -125,6 +127,7 @@ class ObjectDetection:
                 [detect_boxes, detect_scores, detect_classes, num_detect],
                 feed_dict={imageTense: frame_expanded})
             
+            # Go to the instructions function to calculate instructions provided to the user 
             self.instructions(classes, num, counter, scores, boxes)
             counter = counter + 1
             
@@ -133,27 +136,35 @@ class ObjectDetection:
         camera.close()
     
     def instructions(self, classes, num, counter, scores, boxes):
+        # If the device has just started to run the object detection program then inform the user when it is possible to start navigating
         if counter == 0:
             os.system('espeak -s150 "Ready to start navigating." --stdout | aplay 2>/dev/null')
             #print('Ready to start navigating')
         
+        # Ensure all objects detected in the frame are accounted for in the instructions
         for i in range(0, num[0].astype(np.int32)):
+            # Ensure only detected objects with a certainty score greater than 60 are included in instructions provided to the user
             if np.squeeze((scores[0][i])*100).astype(np.int32) > 60:
+                # Because only the closest detected object is detected by the sensor only the first returned result from the model, which is the closest, has a distance included in its instructions
                 if i == 0:
                     dist = RangeSensor.get_distance()
                 else:
                     dist = 0
                 
+                # Gather the coordinates/location of the detected ojects within the frame
                 x1 = (np.squeeze(boxes[0][i][1])*100).astype(np.int32)
                 x2 = (np.squeeze(boxes[0][i][3])*100).astype(np.int32)
                 
+                # If there is no distance to provide for this detected object to the user don't include it in the instructions provided to the user
                 if dist == 0 or dist is None:
                     #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)))
                     os.system('espeak -s150 "The detected object {0}." --stdout | aplay 2>/dev/null'.format(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name']))
+                # If a distance was detected for this object include it in the instruction provided to the user
                 else:
                     #print("The detected object is: " + str(category_indx[classes[0][i]]['name']) + " \nWith the score of: " + str(np.squeeze((scores[0][i])*100).astype(np.int32)) + " is " + str(np.squeeze(dist).astype(np.int32)) + " inches away")
                     os.system('espeak -s150 "The detected object {0} is {1} inches away." --stdout | aplay 2>/dev/null'.format(category_indx[np.squeeze(classes[0][i]).astype(np.int32)]['name'], np.squeeze(dist).astype(np.int32)))
 
+                # Depending on where in the frame the object is located depends on where the user is told the object is located in their path, i.e. to their left, right or straight ahead of them
                 if x1 in range(0, 40) and x2 in range(0, 40):
                     os.system('espeak -s150 "to the left." --stdout | aplay 2>/dev/null')
                     #print("to the left")
